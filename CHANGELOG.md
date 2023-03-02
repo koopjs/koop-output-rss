@@ -1,6 +1,6 @@
 # CHANGELOG.md
 
-## Unreleased
+## 1.0.0
 Fixed
 - Decouple RSS Output plugin with the Hub Search Provider[#27](https://github.com/koopjs/koop-output-hub-search-rss2/pull/27)
 
