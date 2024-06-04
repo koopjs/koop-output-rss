@@ -30,10 +30,12 @@ export = class OutputRss2 {
       const { rssStream } = getRssDataStream(feedTemplate, feedTemplateTransformsRss);
       const datasetStream = await this.getDatasetStream(req);
 
-      datasetStream
-        .pipe(rssStream)
-        .pipe(res);
-
+      datasetStream.on('error', (err) => {
+        if (req.next) {
+          req.next(err);
+        }
+      }).pipe(rssStream).pipe(res);
+      
     } catch (err) {
       res.set('Content-Type', 'application/json');
       res.status(err.statusCode).send(this.getErrorResponse(err));

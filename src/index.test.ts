@@ -7,6 +7,7 @@ import * as mockDataset from './test-helpers/mock-dataset.json';
 import { readableFromArray } from './test-helpers/stream-utils';
 import { ServiceError } from './rss/service-error';
 import { jsonFromXml } from './test-helpers/xml-parser';
+import { PassThrough } from 'stream';
 
 describe('Output Plugin', () => {
   let mockFetchSite;
@@ -31,6 +32,12 @@ describe('Output Plugin', () => {
     app.get('/rss', function (req, res, next) {
       req.app.locals.feedTemplateTransformsRss = feedTemplateTransforms;
       res.locals.feedTemplate = feedTemplate;
+      app.use((err, _req, res, _next) => {
+        res.status(err.status || 500)
+        res.send({
+          error: err.message
+        })
+      })
       next();
     }, plugin.serve.bind(plugin));
 
@@ -147,6 +154,24 @@ describe('Output Plugin', () => {
         expect(plugin.model.pullStream).toHaveBeenCalledTimes(1);
         expect(res.body).toBeDefined();
         expect(res.body.error).toEqual('A validation error');
+      });
+  });
+
+  it('returns error if stream emits an error', async () => {
+    const mockReadable = new PassThrough();
+
+    plugin.model.pullStream.mockResolvedValue(mockReadable);
+    const mockError = new Error('stream error')
+
+    setTimeout(() => {
+      mockReadable.emit('error', mockError)
+    }, 200)
+    await request(app)
+      .get('/rss')
+      .set('host', siteHostName)
+      .expect(500)
+      .expect((res) => {
+        expect(res.text).toEqual(JSON.stringify({ error: 'stream error' }));
       });
   });
 });
