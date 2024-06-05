@@ -1,6 +1,6 @@
 {
   "name": "@koopjs/output-rss",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A Koop output plugin for RSS 2.0",
   "main": "src/index.js",
   "engines": {
