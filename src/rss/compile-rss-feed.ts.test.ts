@@ -100,4 +100,59 @@ describe('generating RSS 2 feed', () => {
    
   });
 
+  it('should use interpolated template georss if RSS template contains georss', async function () {
+    const rssItemTemplate = {
+      item: {
+        title: '{{name}}',
+        description: '{{searchDescription}}',
+        author: '{{orgContactEmail}}',
+        category: '{{categories}}',
+        'georss:where': '{{boundary:toGeoRss}}'
+      }
+    };
+
+    const templateTransforms = {
+      toGeoRss: (_key, _val) => {
+        return {
+          'gml:Envelope': {
+            'gml:lowerCorner': '1 2',
+            'gml:upperCorner': '3 4'
+          }
+        };
+      }
+    };
+
+    const itemRss = compileRssFeedEntry(datasetFromApi, rssItemTemplate, templateTransforms);
+    const { item } = jsonFromXml(itemRss);
+    expect(item['georss:where']).toBeDefined();
+    expect(item['georss:where']).toStrictEqual({
+      'gml:Envelope': {
+        'gml:lowerCorner': '1 2',
+        'gml:upperCorner': '3 4'
+      }
+    })
+  });
+
+  it('should remove georss key if interpolated georss is undefined', async function () {
+    const rssItemTemplate = {
+      item: {
+        title: '{{name}}',
+        description: '{{searchDescription}}',
+        author: '{{orgContactEmail}}',
+        category: '{{categories}}',
+        'georss:where': '{{boundary:toGeoRss}}'
+      }
+    };
+
+    const templateTransforms = {
+      toGeoRss: (_key, _val) => {
+        return undefined;
+      }
+    };
+
+    const itemRss = compileRssFeedEntry(datasetFromApi, rssItemTemplate, templateTransforms);
+    const { item } = jsonFromXml(itemRss);
+    expect(item['georss:where']).toBeUndefined();
+  });
+
 });
