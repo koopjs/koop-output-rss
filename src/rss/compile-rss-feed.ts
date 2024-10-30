@@ -52,11 +52,13 @@ function generateRssItem(geojsonFeature: Feature, feedTemplate: RssDatasetTempla
     return interpolatedFields;
   }
 
+  // at this point georss is not present in feed template
+  // so generate georss from geojson
   return geometry && geometry.type == 'Polygon' ? getFieldsWithGeoRss(interpolatedFields, geojsonFeature) : interpolatedFields;
 }
 
 function hasGeoRssTemplateString(interpolatedFields) {
-  return /{{(.*?)}}/.test(_.get(interpolatedFields, 'item.georss:where', ''))
+  return /{{(.*?)}}/.test(_.get(interpolatedFields, 'item.georss:where', ''));
 }
 
 function getFieldsWithGeoRss(rssItem: Record<string, any>, feature: Feature): Record<string, any> {
