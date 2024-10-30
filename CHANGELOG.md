@@ -1,5 +1,9 @@
 # CHANGELOG.md
 
+## 1.0.2
+Fixed
+- Support GeoRSS from feed template [#10](https://github.com/koopjs/koop-output-rss/pull/10)
+
 ## 1.0.1
 Fixed
 - Handle stream error[#9](https://github.com/koopjs/koop-output-rss/pull/9)
