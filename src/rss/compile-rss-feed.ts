@@ -3,6 +3,7 @@ import { XMLBuilder } from 'fast-xml-parser';
 import { defaultXmlOptions } from './index';
 import { ServiceError } from './service-error';
 import * as geojsonExtent from '@mapbox/geojson-extent';
+import * as _ from 'lodash';
 
 export type RssDatasetTemplate = Record<string, any>;
 type Feature = {
@@ -39,9 +40,26 @@ function generateRssItem(geojsonFeature: Feature, feedTemplate: RssDatasetTempla
     feedTemplateTransforms
   );
 
+  // if georss element is present in rss feed template
+  // use georss from template else generate georss from
+  // geojson
+  if (_.get(interpolatedFields, 'item.georss:where')) {
+    // if interpolated georss feed template contains template string 
+    // it means that the georss is not valid. So, remote it from feed.
+    if (hasGeoRssTemplateString(interpolatedFields)) {
+      _.unset(interpolatedFields, 'item.georss:where');
+    }
+    return interpolatedFields;
+  }
+
+  // at this point georss is not present in feed template
+  // so generate georss from geojson
   return geometry && geometry.type == 'Polygon' ? getFieldsWithGeoRss(interpolatedFields, geojsonFeature) : interpolatedFields;
 }
 
+function hasGeoRssTemplateString(interpolatedFields) {
+  return /{{(.*?)}}/.test(_.get(interpolatedFields, 'item.georss:where', ''));
+}
 
 function getFieldsWithGeoRss(rssItem: Record<string, any>, feature: Feature): Record<string, any> {
   const extent = geojsonExtent(feature.geometry);
