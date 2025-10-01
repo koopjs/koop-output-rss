@@ -40,13 +40,20 @@ function generateRssItem(geojsonFeature: Feature, feedTemplate: RssDatasetTempla
     feedTemplateTransforms
   );
 
+  // Remove elements with unresolved template strings
+  ['item.title', 'item.description', 'item.author', 'item.category'].forEach((element) => {
+    if (hasTemplateString(interpolatedFields, element)) {
+      _.unset(interpolatedFields, element);
+    }
+  });
+
   // if georss element is present in rss feed template
   // use georss from template else generate georss from
   // geojson
   if (_.get(interpolatedFields, 'item.georss:where')) {
     // if interpolated georss feed template contains template string 
     // it means that the georss is not valid. So, remote it from feed.
-    if (hasGeoRssTemplateString(interpolatedFields)) {
+    if (hasTemplateString(interpolatedFields, 'item.georss:where')) {
       _.unset(interpolatedFields, 'item.georss:where');
     }
     return interpolatedFields;
@@ -57,8 +64,8 @@ function generateRssItem(geojsonFeature: Feature, feedTemplate: RssDatasetTempla
   return geometry && geometry.type == 'Polygon' ? getFieldsWithGeoRss(interpolatedFields, geojsonFeature) : interpolatedFields;
 }
 
-function hasGeoRssTemplateString(interpolatedFields) {
-  return /{{(.*?)}}/.test(_.get(interpolatedFields, 'item.georss:where', ''));
+function hasTemplateString(interpolatedFields, element) {
+  return /{{(.*?)}}/.test(_.get(interpolatedFields, element, ''));
 }
 
 function getFieldsWithGeoRss(rssItem: Record<string, any>, feature: Feature): Record<string, any> {
