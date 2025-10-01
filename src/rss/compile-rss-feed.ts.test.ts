@@ -40,6 +40,58 @@ describe('generating RSS 2 feed', () => {
     }).toThrow(ServiceError);
   });
 
+  it('should not see title, description, author, or category if unresolved template strings', async function () {
+    const rssItemTemplate = {
+      item: {
+        title: '{{name}}',
+        description: '{{searchDescription}}',
+        author: '{{orgContactEmail}}',
+        category: '{{categories}}',
+        pubDate: '{{created:toUTC}}'
+      }
+    };
+
+    const templateTransforms = {
+      toUTC: (_key, val) => {
+        return new Date(val).toUTCString();
+      }
+    };
+
+    const itemRss = compileRssFeedEntry({} as any, rssItemTemplate, templateTransforms);
+    const { item } = jsonFromXml(itemRss);
+    expect(item).toBeDefined();
+    expect(item['title']).toBeUndefined();
+    expect(item['description']).toBeUndefined();
+    expect(item['author']).toBeUndefined();
+    expect(item['category']).toBeUndefined();
+  });
+
+  it('should see title, description, author, or category if resolved template strings', async function () {
+    const rssItemTemplate = {
+      item: {
+        title: '{{name}}',
+        description: '{{searchDescription}}',
+        author: '{{orgContactEmail}}',
+        category: '{{categories}}',
+        pubDate: '{{created:toUTC}}'
+      }
+    };
+
+    const templateTransforms = {
+      toUTC: (_key, val) => {
+        return new Date(val).toUTCString();
+      }
+    };
+
+    const itemRss = compileRssFeedEntry(datasetFromApi, rssItemTemplate, templateTransforms);
+    const { item } = jsonFromXml(itemRss);
+    expect(item).toBeDefined();
+    expect(item['title']).toBe("Tahoe places of interest");
+    expect(item['description']).toBe("Description. Here be Tahoe things. You can do a lot here. Here are some more words. And a few more.with more wordsadding a few more to test how long it takes for our jobs to execute.Tom was here!");
+    expect(item['category']).toBe("A random category");
+    expect(item['author']).toBe("randomEmail@esri.com");
+  });
+
   it('should convert to valid georss gml:Envelope if geojson contains geometry of polygon type', async function () {
     const rssItemTemplate = {
       item: {
@@ -154,5 +206,4 @@ describe('generating RSS 2 feed', () => {
     const { item } = jsonFromXml(itemRss);
     expect(item['georss:where']).toBeUndefined();
   });
-
 });

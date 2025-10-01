@@ -113,7 +113,7 @@
     "collection": [
       "Dataset"
     ],
-    "categories": [],
+    "categories": ["A random category"],
     "commentsEnabled": true,
     "composeStatus": {
       "retries": 0,
@@ -1242,6 +1242,7 @@
     "recordCount": 3,
     "region": "US",
     "searchDescription": "Description. Here be Tahoe things. You can do a lot here. Here are some more words. And a few more.with more wordsadding a few more to test how long it takes for our jobs to execute.Tom was here!",
+    "orgContactEmail": "randomEmail@esri.com",
     "server": {
       "supportedContingentValuesFormats": "JSON, PBF",
       "allowGeometryUpdates": true,
