@@ -5,11 +5,6 @@ const plugins = require('./plugins');
 // initiate a koop app
 const koop = new Koop();
 
-// register koop plugins
-plugins.forEach((plugin) => {
-  koop.register(plugin.instance, plugin.options);
-});
-
 koop.server.locals = {
   ...koop.server.locals,
   arcgisPortal: 'https://www.arcgis.com',
@@ -49,6 +44,11 @@ koop.server.use(function (req, res, next) {
     }
   };
   next();
+});
+
+// register koop plugins
+plugins.forEach((plugin) => {
+  koop.register(plugin.instance, plugin.options);
 });
 // start the server
 koop.server.listen(config.port, () => koop.log.info(`Koop server listening at ${config.port}`));
