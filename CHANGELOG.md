@@ -1,5 +1,9 @@
 # CHANGELOG.md
 
+## 1.0.3
+Fixed
+- Removed placeholder elements from feeds items [#11](https://github.com/koopjs/koop-output-rss/pull/11)
+
 ## 1.0.2
 Fixed
 - Support GeoRSS from feed template [#10](https://github.com/koopjs/koop-output-rss/pull/10)
